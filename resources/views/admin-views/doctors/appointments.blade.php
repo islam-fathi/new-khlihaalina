@@ -1,0 +1,210 @@
+@extends('layouts.back-end.app')
+@section('title', \App\CPU\translate('Doctors List'))
+@push('css_or_js')
+    <!-- Custom styles for this page -->
+    <link href="{{ asset('public/assets/back-end') }}/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+@endpush
+
+@section('content')
+    <div class="content container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ \App\CPU\translate('Dashboard') }}</a>
+                </li>
+                <li class="breadcrumb-item" aria-current="page">{{ \App\CPU\translate('Appointments') }}</li>
+                <li class="breadcrumb-item" aria-current="page">{{ \App\CPU\translate('List') }}</li>
+            </ol>
+        </nav>
+
+        <div class="row" style="margin-top: 20px">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h5>
+                                {{ \App\CPU\translate('Appointments table') }}
+                                <span style="color: red; padding: 0 .4375rem;">
+                                </span>
+                            </h5>
+                        </div>
+                        <div style="width: 40vw">
+                            <form action="{{ url()->current() }}" method="GET">
+                                <div class="input-group input-group-merge input-group-flush">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="tio-search"></i>
+                                        </div>
+                                    </div>
+
+                                    <select class="form-control" name="search" required>
+                                        <option value="">--{{ \App\CPU\translate('Select Doctor') }}--</option>
+                                        @foreach ($doctors as $doc)
+                                            <option value="{{ $doc->id }}">{{ $doc->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit"
+                                        class="btn btn-primary">{{ \App\CPU\translate('search') }}</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                    <div class="card-body" style="padding: 0">
+                        <div class="table-responsive">
+                            <table id="datatable"
+                                style="text-align: {{ Session::get('direction') === 'rtl' ? 'right' : 'left' }};"
+                                class="table table-hover table-borderless table-thead-bordered table-nowrap table-align-middle card-table"
+                                style="width: 100%">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>{{ \App\CPU\translate('SL') }}</th>
+                                        <th>{{ \App\CPU\translate('Doctor Name') }}</th>
+                                        <th>{{ \App\CPU\translate('Requested By') }}</th>
+                                        <th>{{ \App\CPU\translate('Name') }}</th>
+                                        <th>{{ \App\CPU\translate('Phone') }}</th>
+                                        <th>{{ \App\CPU\translate('Email') }}</th>
+                                        <th>{{ \App\CPU\translate('Subject') }}</th>
+                                        <th>{{ \App\CPU\translate('Message') }}</th>
+                                        <th>{{ \App\CPU\translate('Appointment Date') }}</th>
+                                        <th>{{ \App\CPU\translate('Appointment Status') }}</th>
+                                        <th>{{ \App\CPU\translate('Payment Value') }}</th>
+                                        <th style="width: 50px">{{ \App\CPU\translate('Action') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php 
+                                        $i= 1; 
+                                        $l=1;
+                                        $s=1; 
+                                    @endphp
+                                    @foreach ($doctor_appointments as $appointment)
+                                        <tr class="">
+                                            <td class="">{{ $i++ }}</td>
+                                            <td class="table-column-pl-0"> 
+                                                @isset($appointment->doctors['name'])
+                                                    {{ $appointment->doctors['name'] }}
+                                                @endisset()
+                                                @empty($appointment->doctors['name'])
+                                                    {{\App\CPU\translate('doctor not found')}}
+                                                @endempty()
+                                            </td>
+                                            <td class="table-column-pl-0"> 
+                                                @isset($appointment->customer['f_name'])
+                                                    {{ $appointment->customer['f_name'] }} {{ $appointment->customer['l_name'] }}
+                                                @endisset()
+                                                @empty($appointment->customer['f_name'])
+                                                    {{\App\CPU\translate('customer not found')}}
+                                                @endempty()
+                                            </td>
+                                            <td class="table-column-pl-0"> {{ $appointment->name }}</td>
+                                            <td class="table-column-pl-0"> {{ $appointment->phone }}</td>
+                                            <td class="table-column-pl-0"> {{ $appointment->email }}</td>
+                                            <td class="table-column-pl-0"> {{ $appointment->subject }}</td>
+                                            <td class="table-column-pl-0"> {{ $appointment->message }}</td>
+                                            <td class="table-column-pl-0"> {{ $appointment->appointment_date }}</td>
+                                            <td class="text-capitalize">
+                                                @if ($appointment['appointment_status'] == 'pending')
+                                                    <span class="badge badge-soft-info ml-2 ml-sm-3">
+                                                        <span class="legend-indicator bg-info"
+                                                            style="{{ Session::get('direction') === 'rtl' ? 'margin-right: 0;margin-left: .4375rem;' : 'margin-left: 0;margin-right: .4375rem;' }}"></span>{{ \App\CPU\translate($appointment['appointment_status']) }}
+                                                    </span>
+                                                @elseif($appointment['appointment_status'] == 'confirmed')
+                                                    <span class="badge badge-soft-success ml-2 ml-sm-3">
+                                                        <span class="legend-indicator bg-success"
+                                                            style="{{ Session::get('direction') === 'rtl' ? 'margin-right: 0;margin-left: .4375rem;' : 'margin-left: 0;margin-right: .4375rem;' }}"></span>{{ \App\CPU\translate($appointment['appointment_status']) }}
+                                                    </span>
+                                                @elseif($appointment['appointment_status'] == 'canceled')
+                                                    <span class="badge badge-soft-danger ml-2 ml-sm-3">
+                                                        <span class="legend-indicator bg-danger"
+                                                            style="{{ Session::get('direction') === 'rtl' ? 'margin-right: 0;margin-left: .4375rem;' : 'margin-left: 0;margin-right: .4375rem;' }}"></span>{{ \App\CPU\translate($appointment['appointment_status']) }}
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="table-column-pl-0"> {{ $appointment->payment_value }}</td>
+                                            <td>
+                                                {{-- <div class="hs-unfold float-right col-6"> --}}
+                                                    <div class="dropdown form-control">
+                                                        <select name="appointment_status"
+                                                            onchange="appointment_status_{{$l++}}(this.value)"
+                                                            class="" data-id="{{ $appointment->id }}">
+                                                            <option value="pending"
+                                                                {{ $appointment->appointment_status == 'pending' ? 'selected' : '' }}>
+                                                                {{ \App\CPU\translate('Pending') }}</option>
+                                                            <option value="confirmed"
+                                                                {{ $appointment->appointment_status == 'confirmed' ? 'selected' : '' }}>
+                                                                {{ \App\CPU\translate('Confirmed') }}</option>
+                                                            <option value="canceled"
+                                                                {{ $appointment->appointment_status == 'canceled' ? 'selected' : '' }}>
+                                                                {{ \App\CPU\translate('Canceled') }} </option>
+                                                        </select>
+                                                    </div>
+                                                {{-- </div> --}}
+                                                <script>
+                                                    function appointment_status_{{$s++}}(status) {
+                                                        Swal.fire({
+                                                            title: '{{ \App\CPU\translate('Are you sure Change this') }}?',
+                                                            text: "{{ \App\CPU\translate('You will not be able to revert this') }}!",
+                                                            showCancelButton: true,
+                                                            confirmButtonColor: '#377dff',
+                                                            cancelButtonColor: 'secondary',
+                                                            confirmButtonText: '{{ \App\CPU\translate('Yes, Change it') }}!'
+                                                        }).then((result) => {
+                                                            if (result.value) {
+                                                                $.ajaxSetup({
+                                                                    headers: {
+                                                                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                                                                    }
+                                                                });
+                                                                $.ajax({
+                                                                    url: "{{ route('admin.doctor.appointments-status') }}",
+                                                                    method: 'POST',
+                                                                    data: {
+                                                                        "id": '{{ $appointment['id'] }}',
+                                                                        "appointment_status": status
+                                                                    },
+                                                                    success: function(data) {
+                                                                        if (data.success == 0) {
+                                                                            toastr.success(
+                                                                                '{{ \App\CPU\translate('Order is already delivered, You can not change it') }} !!'
+                                                                                );
+                                                                            location.reload();
+                                                                        } else {
+                                                                            toastr.success(
+                                                                                '{{ \App\CPU\translate('Status Change successfully') }}!');
+                                                                            location.reload();
+                                                                        }
+
+                                                                    }
+                                                                });
+                                                            }
+                                                        })
+                                                    }
+                                                </script>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('script')
+    <!-- Page level plugins -->
+    <script src="{{ asset('public/assets/back-end') }}/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="{{ asset('public/assets/back-end') }}/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <!-- Page level custom scripts -->
+    <script>
+        // Call the dataTables jQuery plugin
+        $(document).ready(function() {
+            $('#dataTable').DataTable();
+        });
+    </script>
+@endpush

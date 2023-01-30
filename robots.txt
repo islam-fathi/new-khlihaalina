@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+sitemap: https://khlihaalina.com/sitemapindex.xml
+sitemap: https://khlihaalina.com/sitemapindeximages.xml
+sitemap: https://khlihaalina.com/sitemapnewindex.xml
+sitemap: https://khlihaalina.com/sitemapmobileindex.xml
